@@ -64,7 +64,11 @@
   <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-
+        <div class="page">
+            <p><img src="img/logo/logo.png" alt="image" id="photo" /></p>
+            <p><button id="btn">Take Picture</button></p>
+            <p id="msg"></p>
+        </div>
   <div class="color-line"></div>
   <div class="container-fluid">
     <div class="row">
@@ -125,48 +129,46 @@
       </div>
     </div>
   </div>
-</body>
-<script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
-<script>
-  document.addEventListener('deviceready', onDevice, false);
-
-  function onDevice() {
-    var email = document.getElementById('btnPict').addEventListener('click',getPhotoFromCamera);
-    function getPhotoFromCamera() {
-     console.warn("photo")
-      navigator.camera.getPicture(onPhotoDataSuccess, onFail, {
-        quality: 50,
-        sourceType: navigator.camera.PictureSourceType.CAMERA,
-        destinationType: navigator.camera.DestinationType.DATA_URL,
-      });
-    }
-
-    function onPhotoDataSuccess(imageData) {
-      console.warn("photo")
-      var image = document.getElementById('image');
-      image.style.display = 'block';
-      image.src = "data:image/jpeg;base64," + imageData;
-      alert('takefoto');
-    }
-    function getPhotoFromAlbum() {
-      navigator.camera.getPicture(onPhotoURISuccess, onFail, {
-        quality: 50,
-        sourceType: navigator.camera.PictureSourceType.SAVEDPHOTOALBUM,
-        destinationType: navigator.camera.DestinationType.FILE_URI
-      });
-    }
-    function onPhotoURISuccess(imageURI) {
-      var image = document.getElementById('image');
-      image.style.display = 'block';
-      image.src = imageURI;
-    }
-    function onFail(message) {
-      alert('Failed because:' + message);
-    }
-  }
+ 
 
 
+<script type="text/javascript" src="cordova.js"></script>
+        <script>
+            let app = {
+                init: function(){
+                    document.getElementById('btn').addEventListener('click', app.takephoto);
+                },
+                takephoto: function(){
+                    let opts = {
+                        quality: 80,
+                        destinationType: Camera.DestinationType.FILE_URI,
+                        sourceType: Camera.PictureSourceType.CAMERA,
+                        mediaType: Camera.MediaType.PICTURE,
+                        encodingType: Camera.EncodingType.JPEG,
+                        cameraDirection: Camera.Direction.BACK,
+                        targetWidth: 300,
+                        targetHeight: 400
+                    };
+                    
+                    navigator.camera.getPicture(app.ftw, app.wtf, opts);
+                },
+                ftw: function(imgURI){
+                    document.getElementById('msg').textContent = imgURI;
+                    document.getElementById('photo').src = imgURI;
+                    
+                },
+                wtf: function(msg){
+                    document.getElementById('msg').textContent = msg;
+                }
+            };
+            
+            document.addEventListener('deviceready', app.init);
+        </script>
 
+ 
+ 
+ <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
+ <script>
   var config = {
     apiKey: "AIzaSyCLDkEtZBAgB8gPsopTvTiO6AMX65Vc8QE",
     authDomain: "dashboard-24b85.firebaseapp.com",
@@ -206,6 +208,6 @@
 
 </script>
 
-
+</body>
 
 </html>

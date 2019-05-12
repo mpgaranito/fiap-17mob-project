@@ -807,7 +807,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    this.failPicture("Error capturing image.");
+                    this.failPicture("Error capturing image."+e.toString());
                 }
             }
 

@@ -64,11 +64,7 @@
   <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <div class="page">
-            <p><img src="img/logo/logo.png" alt="image" id="photo" /></p>
-            <p><button id="btn">Take Picture</button></p>
-            <p id="msg"></p>
-        </div>
+      
   <div class="color-line"></div>
   <div class="container-fluid">
     <div class="row">
@@ -94,10 +90,11 @@
 
                 <div class="form-group col-lg-6">
                   <div class="text-center">
-                    <div class="text-center"><img style="width:60px;height:60px;" id="Image" />
+                     <div class="page">
+                        <p><img src="img/logo/logo.png" alt="image" id="photo" width="60px" height="60px"/></p>
+                        <p><button class="btn btn-default" id="btn">Take Picture</button></p>
+                        <p id="msg"></p>
                     </div>
-
-                    <button class="btn btn-default" id="btnPict">Select Photo:</button>
                   </div>
                 </div>
                 <div class="form-group col-lg-6">
@@ -134,7 +131,7 @@
 
 <script type="text/javascript" src="cordova.js"></script>
         <script>
-            let app = {
+           let app = {
                 init: function(){
                     document.getElementById('btn').addEventListener('click', app.takephoto);
                 },
@@ -153,7 +150,7 @@
                     navigator.camera.getPicture(app.ftw, app.wtf, opts);
                 },
                 ftw: function(imgURI){
-                    document.getElementById('msg').textContent = imgURI;
+                  //  document.getElementById('msg').textContent = imgURI;
                     document.getElementById('photo').src = imgURI;
                     
                 },

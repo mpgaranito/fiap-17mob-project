@@ -9,6 +9,9 @@
   "installed_plugins": {
     "cordova-plugin-whitelist": {
       "PACKAGE_NAME": "br.com.garanito.dashboard"
+    },
+    "cordova-plugin-camera": {
+      "PACKAGE_NAME": "br.com.garanito.dashboard"
     }
   },
   "dependent_plugins": {}

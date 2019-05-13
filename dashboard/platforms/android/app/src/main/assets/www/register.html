@@ -91,9 +91,10 @@
         <div hidden><input name="photoupload" type="file" id="photoupload" /> </div>
         <div hidden><input name="sendfile" type="button" id="sendfile" value="send" /> </div>
       <p id="msg"></p>
+      <canvas id="canvas" width="60" height="60">Your browser does not support the HTML5 canvas tag.</canvas>
     </div>
   </div>
-  <canvas hidden id="canvas" width="60" height="60">Your browser does not support the HTML5 canvas tag.</canvas>
+
   <script type="text/javascript" src="cordova.js"></script> 
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script> <!--Get AWS SDK for s3 purposes-->
   <script type="text/javascript" src="js/UtilsS3.js"></script> <!--My S3 sUtils-->
@@ -119,6 +120,12 @@
       ftw: function (imgURI) {
         document.getElementById('msg').textContent = imgURI;
         document.getElementById('photo').src = imgURI;
+          img.onload = function () {
+          var c = document.getElementById("canvas");
+          var ctx = c.getContext("2d");
+          var img = document.getElementById("photo");
+          ctx.drawImage(img, 10, 10)
+        }
 
       },
       error: function (msg) {

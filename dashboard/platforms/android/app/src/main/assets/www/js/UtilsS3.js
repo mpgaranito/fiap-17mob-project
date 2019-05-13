@@ -29,15 +29,19 @@ function getName() {
 
 function addPhoto(albumName) {
     var albumPhotosKey = encodeURIComponent(albumName);
-    var img = document.getElementById("photo");
-    if(img==null)
-        return false;
-    //var imgPath = getName();
-    var photoKey = albumPhotosKey;
-    var canvasInternal = document.getElementById("canvas");
+ 
+    var photoKey = albumPhotosKey + ".png";
+    /*var canvasInternal = document.getElementById("canvas");
     var canvasContext = canvasInternal.getContext("2d");
     canvasContext.drawImage(img, 60, 60)
     var dataUrl = canvasInternal.toDataURL("image/jpg");
+   */
+    debugger
+    var c = document.getElementById("canvas");
+    var ctx = c.getContext("2d");
+    var img = document.getElementById("photo");
+    ctx.drawImage(img, 10, 10)
+    var dataUrl = c.toDataURL("image/png");
     var blobData = dataURItoBlob(dataUrl);
     s3.upload({
         Key: photoKey,

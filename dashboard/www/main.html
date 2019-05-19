@@ -61,11 +61,12 @@
   <!-- modernizr JS
 		============================================ -->
   <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script>
 
     function getStats() {
-      debugger
+
       var requestOne = new XMLHttpRequest()
       var requestTwo = new XMLHttpRequest()
       var today = new Date();
@@ -117,6 +118,7 @@
     }, 10000);
     google.charts.load('current', { 'packages': ['table'] });
     google.charts.setOnLoadCallback(drawTable);
+    getStats()
 
 
     function drawTable() {
@@ -153,6 +155,9 @@
             data.setCell(row, 1, child.properties.mag);
             data.setCell(row, 2, child.properties.status);
             row++;
+            if (row == 1) {
+              return false;
+            }
           });
           var table = new google.visualization.Table(document.getElementById('table_div'));
           table.draw(data, { showRowNumber: true, width: '100%', height: '100%' });
@@ -162,7 +167,39 @@
       }
       request.send()
     }
+    var config = {
+      apiKey: "AIzaSyCLDkEtZBAgB8gPsopTvTiO6AMX65Vc8QE",
+      authDomain: "dashboard-24b85.firebaseapp.com",
+      projectId: "dashboard-24b85",
+      messagingSenderId: "307821962394",
+    };
+    firebase.initializeApp(config);
 
+    function checkIsAut() {
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          // window.location = "main.html"
+          //https://garanitofiap.s3.amazonaws.com/nWaW3q64I8ME7dp8T0E1ttkp7oy2.png
+          document.getElementById('photo').src = "https://garanitofiap.s3.amazonaws.com/" + user.uid + ".png";
+          console.log(user);
+        } else {
+          window.location = "index.html"
+        }
+      });
+    }
+
+    function logOff() {
+
+      firebase.auth().signOut()
+        .then(function () {
+          console.log('Logout');
+          window.location = "index.html"
+        }, function (error) {
+          console.error(error);
+        });
+    }
+
+    checkIsAut();
   </script>
 </head>
 
@@ -195,6 +232,10 @@
                     <div class="breadcomb-ctn">
                       <h2>Dashboard</h2>
                       <p>Last Earthquake - usgs.gov</p>
+                      Welcome
+                      <p><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="image" id="photo"
+                          width="60px" height="60px" /></p>
+                      <button class="btn btn-primary btn-sm" id="btnExit">Exit</button>
                     </div>
                   </div>
                 </div>
@@ -285,7 +326,7 @@
 		============================================ -->
   <script src="js/main.js"></script>
 
-
+  <script>document.getElementById('btnExit').addEventListener('click', logOff);</script>
 </body>
 
 </html>

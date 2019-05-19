@@ -61,15 +61,64 @@
   <!-- modernizr JS
 		============================================ -->
   <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.1/firebase.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script>
 
+    function getStats() {
+
+      var requestOne = new XMLHttpRequest()
+      var requestTwo = new XMLHttpRequest()
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth() + 1; //January is 0!
+      var yyyy = today.getFullYear();
+
+      if (dd < 10) {
+        dd = '0' + dd
+      }
+
+      if (mm < 10) {
+        mm = '0' + mm
+      }
+      today = yyyy + "-" + mm + "-" + dd;
+
+      var countStatsMountUrl = "https://earthquake.usgs.gov/fdsnws/event/1/count?starttime=" + yyyy + "-" + mm + "-01&endtime=" + today
+      requestOne.open('GET', countStatsMountUrl, true)
+      requestOne.onload = function () {
+        if (requestOne.status >= 200 && requestOne.status < 400) {
+          var dataone = JSON.parse(this.response);
+          var spanone = document.getElementById('mount');
+          while (spanone.firstChild) {
+            spanone.removeChild(spanone.firstChild);
+          }
+          spanone.appendChild(document.createTextNode(dataone));
+        }
+      }
+      requestOne.send()
+      var countStatsDayUrl = "https://earthquake.usgs.gov/fdsnws/event/1/count?starttime=" + today + "&endtime=" + today
+      requestTwo.open('GET', countStatsDayUrl, true)
+      requestTwo.onload = function () {
+        if (requestTwo.status >= 200 && requestTwo.status < 400) {
+          var datatwo = JSON.parse(this.response)
+          var spantwo = document.getElementById('day');
+          while (spantwo.firstChild) {
+            spantwo.removeChild(spantwo.firstChild);
+          }
+          spantwo.appendChild(document.createTextNode(datatwo));
+        }
+      }
+      requestTwo.send();
+    }
+
     setInterval(function () {
       console.log('Loop For 10 seconds.');
+      getStats()
       drawTable()
     }, 10000);
     google.charts.load('current', { 'packages': ['table'] });
     google.charts.setOnLoadCallback(drawTable);
+    getStats()
 
 
     function drawTable() {
@@ -88,10 +137,10 @@
         mm = '0' + mm
       }
       today = yyyy + "-" + mm + "-" + dd;
-  
-      var urlSite='https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime='+yyyy+'-'+mm+'-01&endtime='+today;
+
+      var urlSite = 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=' + yyyy + '-' + mm + '-01&endtime=' + today;
       console.info(urlSite);
-      request.open('GET',urlSite , true)
+      request.open('GET', urlSite, true)
       request.onload = function () {
         var datas = JSON.parse(this.response)
         // debugger
@@ -104,8 +153,11 @@
           Array.prototype.forEach.call(datas.features, child => {
             data.setCell(row, 0, child.properties.place);
             data.setCell(row, 1, child.properties.mag);
-            data.setCell(row, 2, child.properties.status );
+            data.setCell(row, 2, child.properties.status);
             row++;
+            if (row == 1) {
+              return false;
+            }
           });
           var table = new google.visualization.Table(document.getElementById('table_div'));
           table.draw(data, { showRowNumber: true, width: '100%', height: '100%' });
@@ -115,7 +167,39 @@
       }
       request.send()
     }
+    var config = {
+      apiKey: "AIzaSyCLDkEtZBAgB8gPsopTvTiO6AMX65Vc8QE",
+      authDomain: "dashboard-24b85.firebaseapp.com",
+      projectId: "dashboard-24b85",
+      messagingSenderId: "307821962394",
+    };
+    firebase.initializeApp(config);
 
+    function checkIsAut() {
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (user) {
+          // window.location = "main.html"
+          //https://garanitofiap.s3.amazonaws.com/nWaW3q64I8ME7dp8T0E1ttkp7oy2.png
+          document.getElementById('photo').src = "https://garanitofiap.s3.amazonaws.com/" + user.uid + ".png";
+          console.log(user);
+        } else {
+          window.location = "index.html"
+        }
+      });
+    }
+
+    function logOff() {
+
+      firebase.auth().signOut()
+        .then(function () {
+          console.log('Logout');
+          window.location = "index.html"
+        }, function (error) {
+          console.error(error);
+        });
+    }
+
+    checkIsAut();
   </script>
 </head>
 
@@ -148,6 +232,10 @@
                     <div class="breadcomb-ctn">
                       <h2>Dashboard</h2>
                       <p>Last Earthquake - usgs.gov</p>
+                      Welcome
+                      <p><img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="image" id="photo"
+                          width="60px" height="60px" /></p>
+                      <button class="btn btn-primary btn-sm" id="btnExit">Exit</button>
                     </div>
                   </div>
                 </div>
@@ -167,20 +255,14 @@
       <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <div class="white-box tranffic-als-inner">
-            <h3 class="box-title"><small class="pull-right m-t-10 text-success last-month-sc cl-one"><i
-                  class="fa fa-sort-asc"></i> 18% last month</small> Earthquake</h3>
             <div class="stats-row">
               <div class="stat-item">
-                <h6>Overall Growth</h6>
-                <b>80.40%</b>
-              </div>
-              <div class="stat-item">
                 <h6>Montly</h6>
-                <b>15.40%</b>
+                <b><span id="mount"></span> </b>
               </div>
               <div class="stat-item">
                 <h6>Day</h6>
-                <b>5.50%</b>
+                <b><span id="day"></span> </b>
               </div>
             </div>
             <div id="table_div"></div>
@@ -244,7 +326,7 @@
 		============================================ -->
   <script src="js/main.js"></script>
 
-
+  <script>document.getElementById('btnExit').addEventListener('click', logOff);</script>
 </body>
 
 </html>

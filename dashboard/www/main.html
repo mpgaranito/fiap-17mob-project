@@ -64,9 +64,56 @@
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
   <script>
 
+    function getStats() {
+      debugger
+      var requestOne = new XMLHttpRequest()
+      var requestTwo = new XMLHttpRequest()
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth() + 1; //January is 0!
+      var yyyy = today.getFullYear();
+
+      if (dd < 10) {
+        dd = '0' + dd
+      }
+
+      if (mm < 10) {
+        mm = '0' + mm
+      }
+      today = yyyy + "-" + mm + "-" + dd;
+
+      var countStatsMountUrl = "https://earthquake.usgs.gov/fdsnws/event/1/count?starttime=" + yyyy + "-" + mm + "-01&endtime=" + today
+      requestOne.open('GET', countStatsMountUrl, true)
+      requestOne.onload = function () {
+        if (requestOne.status >= 200 && requestOne.status < 400) {
+          var dataone = JSON.parse(this.response);
+          var spanone = document.getElementById('mount');
+          while (spanone.firstChild) {
+            spanone.removeChild(spanone.firstChild);
+          }
+          spanone.appendChild(document.createTextNode(dataone));
+        }
+      }
+      requestOne.send()
+      var countStatsDayUrl = "https://earthquake.usgs.gov/fdsnws/event/1/count?starttime=" + today + "&endtime=" + today
+      requestTwo.open('GET', countStatsDayUrl, true)
+      requestTwo.onload = function () {
+        if (requestTwo.status >= 200 && requestTwo.status < 400) {
+          var datatwo = JSON.parse(this.response)
+          var spantwo = document.getElementById('day');
+          while (spantwo.firstChild) {
+            spantwo.removeChild(spantwo.firstChild);
+          }
+          spantwo.appendChild(document.createTextNode(datatwo));
+        }
+      }
+      requestTwo.send();
+    }
+
     setInterval(function () {
       console.log('Loop For 10 seconds.');
-        drawTable()
+      getStats()
+      drawTable()
     }, 10000);
     google.charts.load('current', { 'packages': ['table'] });
     google.charts.setOnLoadCallback(drawTable);
@@ -75,20 +122,38 @@
     function drawTable() {
       var data = new google.visualization.DataTable();
       var request = new XMLHttpRequest()
-      request.open('GET', 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2014-01-01&endtime=2014-01-02', true)
+      var today = new Date();
+      var dd = today.getDate();
+      var mm = today.getMonth() + 1; //January is 0!
+      var yyyy = today.getFullYear();
+
+      if (dd < 10) {
+        dd = '0' + dd
+      }
+
+      if (mm < 10) {
+        mm = '0' + mm
+      }
+      today = yyyy + "-" + mm + "-" + dd;
+
+      var urlSite = 'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=' + yyyy + '-' + mm + '-01&endtime=' + today;
+      console.info(urlSite);
+      request.open('GET', urlSite, true)
       request.onload = function () {
         var datas = JSON.parse(this.response)
         // debugger
         if (request.status >= 200 && request.status < 400) {
           data.addColumn('string', 'Place');
-          data.addColumn('string', 'Magnitude');
-          data.addColumn('string', 'Details');
+          data.addColumn('number', 'Magnitude');
+          data.addColumn('string', 'Status');
           data.addRows(datas.features.length);
-           Array.prototype.forEach.call(datas.features, child => {
-        
-            //data.addRows([child.properties.place,child.properties.mag,child.properties.detail]);
-            });
-         
+          var row = 0;
+          Array.prototype.forEach.call(datas.features, child => {
+            data.setCell(row, 0, child.properties.place);
+            data.setCell(row, 1, child.properties.mag);
+            data.setCell(row, 2, child.properties.status);
+            row++;
+          });
           var table = new google.visualization.Table(document.getElementById('table_div'));
           table.draw(data, { showRowNumber: true, width: '100%', height: '100%' });
         } else {
@@ -97,6 +162,7 @@
       }
       request.send()
     }
+
   </script>
 </head>
 
@@ -128,7 +194,7 @@
                     </div>
                     <div class="breadcomb-ctn">
                       <h2>Dashboard</h2>
-                      <p>Last Earthquake USA</p>
+                      <p>Last Earthquake - usgs.gov</p>
                     </div>
                   </div>
                 </div>
@@ -148,20 +214,14 @@
       <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
           <div class="white-box tranffic-als-inner">
-            <h3 class="box-title"><small class="pull-right m-t-10 text-success last-month-sc cl-one"><i
-                  class="fa fa-sort-asc"></i> 18% last month</small> Site Traffic</h3>
             <div class="stats-row">
               <div class="stat-item">
-                <h6>Overall Growth</h6>
-                <b>80.40%</b>
-              </div>
-              <div class="stat-item">
                 <h6>Montly</h6>
-                <b>15.40%</b>
+                <b><span id="mount"></span> </b>
               </div>
               <div class="stat-item">
                 <h6>Day</h6>
-                <b>5.50%</b>
+                <b><span id="day"></span> </b>
               </div>
             </div>
             <div id="table_div"></div>
